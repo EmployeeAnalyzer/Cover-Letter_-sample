@@ -11,11 +11,11 @@ title = "회사,직무,자소서".split(",")
 # print(type(title))
 writer.writerow(title)
 
-url_2 = 'https://www.jobkorea.co.kr/starter/PassAssay?FavorCo_Stat=0&Pass_An_Stat=0&OrderBy=0&EduType=0&WorkType=0&schPart=10012&isSaved=1&Page='
+url = 'https://www.jobkorea.co.kr/starter/PassAssay?FavorCo_Stat=0&Pass_An_Stat=0&OrderBy=0&EduType=0&WorkType=0&schPart=10012&isSaved=1&Page='
 
 #30페이지까지 = 600개까지
 for page in range(1,31):
-    res = requests.get(url_2 + str(page))
+    res = requests.get(url + str(page))
     res.raise_for_status()
     soup = BeautifulSoup(res.text, "lxml")
 
@@ -33,15 +33,16 @@ for page in range(1,31):
         res2 = requests.get(link)
         res2.raise_for_status()
         soup2 = BeautifulSoup(res2.text, "lxml")
+        #불필요한 태그 제거
+        for span_tag in soup2.findAll("span"):
+            span_tag.replace_with("")
+        for a_tag in soup2.findAll("a"):
+            a_tag.replace_with("")
         texts = soup2.find_all('div', attrs={'class':'tx'})
         text_sum = ""
         for i in texts:
-            texts_b = i.find_all('b')
-            for j in texts_b:
-                text_b = j.text
-                text_sum += text_b
+            text = i.get_text()
+            text_sum += text
+
         data = [name, field_2, text_sum]
         writer.writerow(data)
-
-
-    #show > div 첫번째꺼 문자 가져오는걸로 바꿔보기..
